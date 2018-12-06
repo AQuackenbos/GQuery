@@ -1,0 +1,14 @@
+{
+    "name": "aquackenbos/gquery",
+    "description": "A simple GraphQL Query Builder.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrew Quackenbos",
+            "email": "a.quackenbos@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
