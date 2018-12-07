@@ -48,7 +48,7 @@ class Query extends Selection {
 		return $variable;
 	}
 	
-	final public function arguments($arguments) {
+	final public function arguments($arguments = null) {
 		return $this;
 	}
 	
@@ -60,7 +60,7 @@ class Query extends Selection {
 		
 	}
 	
-	public function render() {
+	public function render(&$fragmentExport, $preTabs = 0) {
 		return $this->renderQuery();
 	}
 	

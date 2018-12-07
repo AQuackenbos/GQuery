@@ -2,8 +2,7 @@
 
 namespace GQuery\Input;
 
-class Enum {
-  
+class Raw {
   protected $_value;
   
   public function __construct($value) {
@@ -11,7 +10,11 @@ class Enum {
   }
   
   public function render() {
-    
+  	return $this->_value;
+  }
+  
+  public function __toString() {
+  	return $this->render();
   }
   
 }

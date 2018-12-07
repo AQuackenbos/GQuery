@@ -7,10 +7,10 @@ use GQuery\Fragment;
 class Selection {
 	protected $_identifier;
 	
-	protected $_selections;
-	protected $_arguments;
-	
-	protected $_fragments;
+	protected $_selections	= [];
+	protected $_arguments		= [];
+	protected $_directives	= [];
+	protected $_fragments		= [];
 	
 	public function __construct($identifier, $selections = null, $arguments = null) {
 		$this->_identifier = $identifier;
@@ -115,7 +115,10 @@ class Selection {
 		return $fragment;
 	}
 	
-	public function arguments($arguments) {
+	public function arguments($arguments = null) {
+		if($arguments === null)
+			return $this->_arguments;
+		
 		foreach($arguments as $_arg => $_val) {
 			$this->_arguments[$_arg] = $_val;
 		}
@@ -130,5 +133,77 @@ class Selection {
 		$this->_arguments[$identifier] = $value;
 		
 		return $this;
+	}
+	
+	public function render(&$fragmentExport, $preTabs = 0) {
+		$output = '';
+		$preTabString = $this->_preTabs($preTabs);
+		$output .= $preTabString.$this->identifier();
+		if(count($this->selections()) > 0 || count($this->fragments()) > 0) {
+			$output .= ' ';
+			if(count($this->arguments()) > 0) {
+				//@todo
+				$output .= '(';
+				$argStrings = [];
+				foreach($arguments as $_arg => $_val) {
+					$argStrings[] = "{$_arg}: {$this->_renderArg($_val)}";
+				}
+				$output .= implode(', ', $argStrings);
+				$output .= ')';
+			}
+			$output .= " {\n";
+			foreach($this->selections() as $_s) {
+				$output .= "{$preTabString}{$_s->render($fragmentExport,($preTabs))}";
+			}
+			foreach($this->fragments() as $_f) {
+				$output .= "{$preTabString}{$_f->render($fragmentExport,($preTabs))}";
+			}
+			$output .= "\n{$preTabString}}";
+		} else {
+			$output .= "\n";
+		}
+		
+		return $output;
+	}
+	
+	protected function _renderArg($value) {
+		if(is_string($value))
+			return '"'.$value.'"';
+		
+		if(is_int($value))
+			return $value;
+			
+		if($value instanceof Enum || $value instanceof Variable)
+			return $value->render();
+			
+		if(is_array($value)) {
+			if(!$this->_isAssocArray($value)) {
+				return '['.implode(',',$value).']';
+			}
+			
+			$argStrings = [];
+			$out = '{ ';
+			foreach($value as $k => $v) {
+				$argStrings[] = "{$k}: {$this->_renderArg($v)}";
+			}
+			$out .= implode(', ',$argStrings);
+			$out .= '}';
+			
+			return $out;
+		}
+	}
+	
+	protected function _preTabs($preTabCount) {
+		$tabs = '';
+		for($i = 0; $i < $preTabCount; $i++) {
+			$tabs .= "\t";
+		}
+		return $tabs;
+	}
+	
+	protected function _isAssocArray(array $arr)
+	{
+		if (array() === $arr) return false;
+		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 }

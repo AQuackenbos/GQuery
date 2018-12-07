@@ -2,7 +2,7 @@
 
 use GQuery\Query;
 use GQuery\Fragment;
-use GQuery\Input\Enum;
+use GQuery\Input\Raw;
 
 class GQuery {
 	protected static $_queries		= [];
@@ -41,9 +41,9 @@ class GQuery {
 		return $query;
 	}
 	
-	public static function enum($value) {
-	  $enum = new Enum($value);
+	public static function raw($value) {
+	  $raw = new Raw($value);
 	  
-	  return $enum;
+	  return $raw;
 	}
 }
