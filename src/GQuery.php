@@ -1,7 +1,8 @@
-<?php 
+<?php
 
 use GQuery\Query;
 use GQuery\Fragment;
+use GQuery\Input\Enum;
 
 class GQuery {
 	protected static $_queries		= [];
@@ -40,5 +41,9 @@ class GQuery {
 		return $query;
 	}
 	
-	
+	public static function enum($value) {
+	  $enum = new Enum($value);
+	  
+	  return $enum;
+	}
 }

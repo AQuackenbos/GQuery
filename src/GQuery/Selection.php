@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace GQuery;
 
@@ -13,7 +13,13 @@ class Selection {
 	protected $_fragments;
 	
 	public function __construct($identifier, $selections = null, $arguments = null) {
+		$this->_identifier = $identifier;
 		
+		if($selections !== null)
+			$this->selections($selections);
+		
+		if($arguments !== null)
+			$this->arguments($arguments);
 	}
 	
 	public function identifier($identifier = null) {
@@ -84,7 +90,29 @@ class Selection {
 	}
 	
 	public function fragment($identifier, $type = null, $selections = null) {
+		$fragment = null;
+		if($identifier instanceof Fragment) {
+		  $fragment = $identifier;
+		}
 		
+		if($fragment === null) {
+  		if(array_key_exists($identifier, $this->_selections)) {
+  		  return $this->_selection($identifier);
+  		} elseif (array_key_exists($identifier, $this->_fragments)) {
+  		  $fragment = $this->_fragments[$identifier];
+  		} else {
+  		  $fragment = new Fragment($identifier, $type, $selections);
+  		  $this->_fragments[$identifier] = $fragment;
+  		}
+		}
+  		
+		if($type !== null)
+		  $fragment->type($type);
+		  
+		if($selections !== null)
+		  $fragment->selections($selections);
+		  
+		return $fragment;
 	}
 	
 	public function arguments($arguments) {
