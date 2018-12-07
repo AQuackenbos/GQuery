@@ -7,7 +7,7 @@ use GQuery\Selection;
 use GQuery\Variable;
 
 class Query extends Selection {
-	protected $_variables;
+	protected $_variables = [];
 
 	public function __construct($identifier, $selections = null, $variables = null) {
 		$this->_identifier = $identifier;
@@ -35,7 +35,7 @@ class Query extends Selection {
 		if(array_key_exists($identifier, $this->_variables)) {
 			$variable = $this->_variables[$identifier];
 		} else {
-			$variable = new Variable($identifier);
+			$variable = new Variable($identifier, $type, $default);
 			$this->_variables[$identifier] = $variable;
 		}
 		
@@ -56,8 +56,33 @@ class Query extends Selection {
 		return $this;
 	}
 	
-	public function renderQuery($variables = null, $defaults = true) {
+	public function renderQuery($variables = null) {
+		$output = '';
+		$fragmentExport = [];
+		$output .= 'query '.$this->identifier();
 		
+		if(count($this->variables()) > 0) {
+			$varStrings = [];
+			$output .= ' (';
+			foreach($this->variables() as $_v) {
+				$varStrings[] = $_v->render();
+			}
+			$output .= implode(', ',$varStrings);
+			$output .= ') ';
+		}
+		
+		$output .= " {\n";
+		foreach($this->selections() as $_s) {
+			$output .= $_s->render($fragmentExport,1);
+		}
+		foreach($this->fragments() as $_f) {
+			$output .= $_f->render($fragmentExport,1);
+		}
+		$output .= "\n}";
+		
+		$output .= implode("\n", $fragmentExport);
+		
+		return $output;
 	}
 	
 	public function render(&$fragmentExport, $preTabs = 0) {

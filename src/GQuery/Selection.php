@@ -3,6 +3,7 @@
 namespace GQuery;
 
 use GQuery\Fragment;
+use GQuery\Input\Raw;
 
 class Selection {
 	protected $_identifier;
@@ -58,6 +59,16 @@ class Selection {
 			$identifiers = [$identifiers];
 		
 		foreach($identifiers as $key => $value) {
+			if($key === '_arguments') {
+				$this->arguments($value);
+				continue;
+			}
+			
+			if($key === '_fields') {
+				$this->selections($value);
+				continue;
+			}
+			
 			if(is_int($key)  && !is_array($value)) {
 				$this->selection($value);
 				continue;
@@ -145,7 +156,7 @@ class Selection {
 				//@todo
 				$output .= '(';
 				$argStrings = [];
-				foreach($arguments as $_arg => $_val) {
+				foreach($this->arguments() as $_arg => $_val) {
 					$argStrings[] = "{$_arg}: {$this->_renderArg($_val)}";
 				}
 				$output .= implode(', ', $argStrings);
@@ -153,10 +164,10 @@ class Selection {
 			}
 			$output .= " {\n";
 			foreach($this->selections() as $_s) {
-				$output .= "{$preTabString}{$_s->render($fragmentExport,($preTabs))}";
+				$output .= "{$preTabString}{$_s->render($fragmentExport,($preTabs + 1))}";
 			}
 			foreach($this->fragments() as $_f) {
-				$output .= "{$preTabString}{$_f->render($fragmentExport,($preTabs))}";
+				$output .= "{$preTabString}{$_f->render($fragmentExport,($preTabs + 1))}";
 			}
 			$output .= "\n{$preTabString}}";
 		} else {
@@ -173,12 +184,12 @@ class Selection {
 		if(is_int($value))
 			return $value;
 			
-		if($value instanceof Enum || $value instanceof Variable)
+		if($value instanceof Raw)
 			return $value->render();
 			
 		if(is_array($value)) {
 			if(!$this->_isAssocArray($value)) {
-				return '['.implode(',',$value).']';
+				return '['.implode(',',array_map([$this,'_renderArg'],$value)).']';
 			}
 			
 			$argStrings = [];
@@ -191,6 +202,8 @@ class Selection {
 			
 			return $out;
 		}
+		
+		return '';
 	}
 	
 	protected function _preTabs($preTabCount) {
